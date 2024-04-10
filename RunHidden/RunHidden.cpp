@@ -37,7 +37,8 @@ int main(int argc, char *argv[])
 		NULL,					// Use parent's environment block
 		NULL,					// Use parent's starting directory 
 		&si,					// Pointer to STARTUPINFO structure
-		&pi)) {					// Pointer to PROCESS_INFORMATION structure
+		&pi)					// Pointer to PROCESS_INFORMATION structure
+	) {					
 		std::cout << "Error: Failed to create process.\n";
 		return 2;
 	}
