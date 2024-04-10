@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 		NULL,					// Process handle not inheritable
 		NULL,					// Thread handle not inheritable
 		FALSE,					// Set handle inheritance to FALSE
-		0,						// No creation flags
+		CREATE_NO_WINDOW,		// The process is a console application that is being run without a console window
 		NULL,					// Use parent's environment block
 		NULL,					// Use parent's starting directory 
 		&si,					// Pointer to STARTUPINFO structure
