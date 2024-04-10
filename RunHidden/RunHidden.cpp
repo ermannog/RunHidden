@@ -3,10 +3,52 @@
 
 #include "pch.h"
 #include <iostream>
+#include <Windows.h>
 
-int main()
+int main(int argc, char *argv[])
 {
-    std::cout << "Hello World!\n"; 
+	if (argc < 2) {
+		std::cout << "Error: No parameters specified.\n";
+		return 1;
+	}
+
+	// Converte la stringa char in wchar_t
+	int appPathLength = MultiByteToWideChar(CP_ACP, 0, argv[1], -1, NULL, 0);
+	LPWSTR appPath = new WCHAR[appPathLength];
+	MultiByteToWideChar(CP_ACP, 0, argv[1], -1, appPath, appPathLength);
+
+
+	// Crea un processo per l'applicazione specificata
+	STARTUPINFO si;
+	PROCESS_INFORMATION pi;
+	ZeroMemory(&si, sizeof(si));
+	si.cb = sizeof(si);
+	ZeroMemory(&pi, sizeof(pi));
+
+
+
+	if (!CreateProcess(NULL,	// No module name (use command line)
+		appPath,
+		NULL,					// Process handle not inheritable
+		NULL,					// Thread handle not inheritable
+		FALSE,					// Set handle inheritance to FALSE
+		CREATE_NO_WINDOW,		// The process is a console application that is being run without a console window.
+		NULL,					// Use parent's environment block
+		NULL,					// Use parent's starting directory 
+		&si,					// Pointer to STARTUPINFO structure
+		&pi)) {					// Pointer to PROCESS_INFORMATION structure
+		std::cout << "Error: Failed to create process.\n";
+		return 2;
+	}
+
+	// Elimina la stringa wchar_t
+	delete[] appPath;
+
+	// Chiudi le handle del processo figlio
+	CloseHandle(pi.hProcess);
+	CloseHandle(pi.hThread);
+
+	return 0;
 }
 
 // Per eseguire il programma: CTRL+F5 oppure Debug > Avvia senza eseguire debug
