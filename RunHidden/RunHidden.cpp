@@ -25,14 +25,15 @@ int main(int argc, char *argv[])
 	si.cb = sizeof(si);
 	ZeroMemory(&pi, sizeof(pi));
 
-
+	si.dwFlags = STARTF_USESHOWWINDOW;
+	si.wShowWindow = SW_HIDE;
 
 	if (!CreateProcess(NULL,	// No module name (use command line)
 		appPath,
 		NULL,					// Process handle not inheritable
 		NULL,					// Thread handle not inheritable
 		FALSE,					// Set handle inheritance to FALSE
-		CREATE_NO_WINDOW,		// The process is a console application that is being run without a console window.
+		0,			            // No creation flags
 		NULL,					// Use parent's environment block
 		NULL,					// Use parent's starting directory 
 		&si,					// Pointer to STARTUPINFO structure
