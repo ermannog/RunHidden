@@ -1,25 +1,42 @@
-// RunHidden.cpp : Questo file contiene la funzione 'main', in cui inizia e termina l'esecuzione del programma.
+// RunHidden.cpp : Questo file contiene la funzione '', in cui inizia e termina l'esecuzione del programma.
 //
 
 #include "pch.h"
-#include <iostream>
 #include <Windows.h>
 
-int main(int argc, char *argv[])
-{
+int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
+	_In_opt_ HINSTANCE hPrevInstance,
+	_In_ LPWSTR    lpCmdLine,
+	_In_ int       nCmdShow) {
+
+	
+	if (wcscmp(lpCmdLine, L"/?") ==0 ) {
+		MessageBoxW(
+			NULL,
+			(LPCWSTR)L"  RunHidden application\n\n  [application]\n  Specify the path or file name of the application",
+			(LPCWSTR)L"Using Run Hidden",
+			MB_ICONINFORMATION | MB_OK);
+		return 0;
+	}
+
+	// Impostazione variabili argc e argv
+	int argc;
+	LPWSTR *argv = CommandLineToArgvW(GetCommandLineW(), &argc);
+
+	if (NULL == argv)
+	{
+		MessageBoxW(NULL, L"CommandLineToArgvW failed.", L"Error", MB_ICONERROR |MB_OK);
+		return 10;
+	}
+
+	// Verifica esistenza di almeno un parametro
 	if (argc < 2) {
-		std::cout << "Error: No parameters specified.\n";
+		MessageBoxW(NULL, L"No parameters specified.", L"Error", MB_ICONERROR | MB_OK);
 		return 1;
 	}
 
-	// Converte la stringa char in wchar_t
-	int appPathLength = MultiByteToWideChar(CP_ACP, 0, argv[1], -1, NULL, 0);
-	LPWSTR appPath = new WCHAR[appPathLength];
-	MultiByteToWideChar(CP_ACP, 0, argv[1], -1, appPath, appPathLength);
-
-
-	// Crea un processo per l'applicazione specificata
-	STARTUPINFO si;
+	// Creazione del processo per l'applicazione specificata
+	STARTUPINFOW si;
 	PROCESS_INFORMATION pi;
 	ZeroMemory(&si, sizeof(si));
 	si.cb = sizeof(si);
@@ -28,8 +45,8 @@ int main(int argc, char *argv[])
 	si.dwFlags = STARTF_USESHOWWINDOW;
 	si.wShowWindow = SW_HIDE;
 
-	if (!CreateProcess(NULL,	// No module name (use command line)
-		appPath,
+	if (!CreateProcessW(NULL,	// No module name
+		argv[1],				// Command line				
 		NULL,					// Process handle not inheritable
 		NULL,					// Thread handle not inheritable
 		FALSE,					// Set handle inheritance to FALSE
@@ -39,27 +56,16 @@ int main(int argc, char *argv[])
 		&si,					// Pointer to STARTUPINFO structure
 		&pi)					// Pointer to PROCESS_INFORMATION structure
 	) {					
-		std::cout << "Error: Failed to create process.\n";
+		MessageBoxW(NULL, L"Failed to create process.", L"Error", MB_ICONERROR | MB_OK);
 		return 2;
 	}
-
-	// Elimina la stringa wchar_t
-	delete[] appPath;
-
-	// Chiudi le handle del processo figlio
+ 
+	// Chiusura handles del processo 
 	CloseHandle(pi.hProcess);
 	CloseHandle(pi.hThread);
 
+	// Rilascio risorse argv
+	LocalFree(argv);
+
 	return 0;
 }
-
-// Per eseguire il programma: CTRL+F5 oppure Debug > Avvia senza eseguire debug
-// Per eseguire il debug del programma: F5 oppure Debug > Avvia debug
-
-// Suggerimenti per iniziare: 
-//   1. Usare la finestra Esplora soluzioni per aggiungere/gestire i file
-//   2. Usare la finestra Team Explorer per connettersi al controllo del codice sorgente
-//   3. Usare la finestra di output per visualizzare l'output di compilazione e altri messaggi
-//   4. Usare la finestra Elenco errori per visualizzare gli errori
-//   5. Passare a Progetto > Aggiungi nuovo elemento per creare nuovi file di codice oppure a Progetto > Aggiungi elemento esistente per aggiungere file di codice esistenti al progetto
-//   6. Per aprire di nuovo questo progetto in futuro, passare a File > Apri > Progetto e selezionare il file con estensione sln
